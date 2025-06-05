@@ -7,7 +7,9 @@
 
 package com.facebook.react.bridge
 
+import com.facebook.react.fabric.BigStringBufferWrapper
+
 public interface BundleConsumer {
-  public fun setSourceFileName(sourceFileName: String)
+  public fun setScriptWrapper(scriptWrapper: BigStringBufferWrapper)
   public fun setSourceURL(sourceURL: String)
 }

@@ -144,14 +144,11 @@ void JReactInstance::loadJSBundleFromAssets(
   instance_->loadScript(buffer, sourceURL);
 }
 
-void JReactInstance::loadJSBundleFromFile(
-    const std::string& fileName,
+void JReactInstance::loadJSBundle(
+    jni::alias_ref<BigStringBufferWrapper::javaobject> scriptWrapper,
     const std::string& sourceURL) {
-  std::unique_ptr<const JSBigFileString> script;
-  RecoverableError::runRethrowingAsRecoverable<std::system_error>(
-      [&fileName, &script]() { script = JSBigFileString::fromPath(fileName); });
-  auto buffer = std::make_shared<BigStringBuffer>(std::move(script));
-  instance_->loadScript(buffer, sourceURL);
+  auto script = scriptWrapper->cthis()->getScript();
+  instance_->loadScript(script, sourceURL);
 }
 
 /**
@@ -224,7 +221,7 @@ void JReactInstance::registerNatives() {
       makeNativeMethod(
           "loadJSBundleFromAssets", JReactInstance::loadJSBundleFromAssets),
       makeNativeMethod(
-          "loadJSBundleFromFile", JReactInstance::loadJSBundleFromFile),
+          "loadJSBundle", JReactInstance::loadJSBundle),
       makeNativeMethod(
           "getJSCallInvokerHolder", JReactInstance::getJSCallInvokerHolder),
       makeNativeMethod(

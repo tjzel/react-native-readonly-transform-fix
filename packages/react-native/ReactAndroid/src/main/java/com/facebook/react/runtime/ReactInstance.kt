@@ -43,6 +43,7 @@ import com.facebook.react.common.annotations.FrameworkAPI
 import com.facebook.react.common.annotations.UnstableReactNativeAPI
 import com.facebook.react.devsupport.StackTraceHelper
 import com.facebook.react.devsupport.interfaces.DevSupportManager
+import com.facebook.react.fabric.BigStringBufferWrapper
 import com.facebook.react.fabric.ComponentFactory
 import com.facebook.react.fabric.FabricUIManager
 import com.facebook.react.fabric.FabricUIManagerBinding
@@ -299,15 +300,18 @@ internal class ReactInstance(
           ) {
             context.setSourceURL(sourceURL)
 
+            val script = BigStringBufferWrapper(fileName)
+
             val workletsModule = turboModuleManager.getModule("WorkletsModule") as? BundleConsumer
-            workletsModule?.setSourceFileName(fileName)
+            workletsModule?.setScriptWrapper(script)
             workletsModule?.setSourceURL(sourceURL)
 
-            loadJSBundleFromFile(fileName, sourceURL)
+            loadJSBundle(script, sourceURL)
           }
 
           override fun loadSplitBundleFromFile(fileName: String, sourceURL: String) {
-            loadJSBundleFromFile(fileName, sourceURL)
+            val script = BigStringBufferWrapper(fileName)
+            loadJSBundle(script, sourceURL)
           }
 
           override fun loadScriptFromAssets(
@@ -428,7 +432,7 @@ internal class ReactInstance(
       reactHostInspectorTarget: ReactHostInspectorTarget?
   ): HybridData
 
-  private external fun loadJSBundleFromFile(fileName: String, sourceURL: String)
+  private external fun loadJSBundle(scriptWrapper: BigStringBufferWrapper, sourceURL: String)
 
   private external fun loadJSBundleFromAssets(assetManager: AssetManager, assetURL: String)
 

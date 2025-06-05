@@ -21,6 +21,7 @@
 #include <react/runtime/JSRuntimeFactory.h>
 #include <react/runtime/PlatformTimerRegistry.h>
 #include <react/runtime/ReactInstance.h>
+#include <react/fabric/BigStringBufferWrapper.h>
 
 #include "JBindingsInstaller.h"
 #include "JJSRuntimeFactory.h"
@@ -62,8 +63,8 @@ class JReactInstance : public jni::HybridClass<JReactInstance> {
       jni::alias_ref<JAssetManager::javaobject> assetManager,
       const std::string& assetURL);
 
-  void loadJSBundleFromFile(
-      const std::string& fileName,
+  void loadJSBundle(
+      jni::alias_ref<BigStringBufferWrapper::javaobject> scriptWrapper,
       const std::string& sourceURL);
 
   void callFunctionOnModule(
