@@ -140,7 +140,8 @@ void JReactInstance::loadJSBundleFromAssets(
 
   auto manager = extractAssetManager(assetManager);
   auto script = loadScriptFromAssets(manager, sourceURL);
-  instance_->loadScript(std::move(script), sourceURL);
+  auto buffer = std::make_shared<BigStringBuffer>(std::move(script));
+  instance_->loadScript(buffer, sourceURL);
 }
 
 void JReactInstance::loadJSBundleFromFile(
@@ -149,7 +150,8 @@ void JReactInstance::loadJSBundleFromFile(
   std::unique_ptr<const JSBigFileString> script;
   RecoverableError::runRethrowingAsRecoverable<std::system_error>(
       [&fileName, &script]() { script = JSBigFileString::fromPath(fileName); });
-  instance_->loadScript(std::move(script), sourceURL);
+  auto buffer = std::make_shared<BigStringBuffer>(std::move(script));
+  instance_->loadScript(buffer, sourceURL);
 }
 
 /**

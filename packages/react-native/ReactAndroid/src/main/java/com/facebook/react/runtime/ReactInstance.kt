@@ -20,6 +20,7 @@ import com.facebook.react.DebugCorePackage
 import com.facebook.react.ReactPackage
 import com.facebook.react.ViewManagerOnDemandReactPackage
 import com.facebook.react.bridge.Arguments
+import com.facebook.react.bridge.BundleConsumer
 import com.facebook.react.bridge.JSBundleLoader
 import com.facebook.react.bridge.JSBundleLoaderDelegate
 import com.facebook.react.bridge.JavaScriptContextHolder
@@ -297,6 +298,11 @@ internal class ReactInstance(
               loadSynchronously: Boolean
           ) {
             context.setSourceURL(sourceURL)
+
+            val workletsModule = turboModuleManager.getModule("WorkletsModule") as? BundleConsumer
+            workletsModule?.setSourceFileName(fileName)
+            workletsModule?.setSourceURL(sourceURL)
+
             loadJSBundleFromFile(fileName, sourceURL)
           }
 
