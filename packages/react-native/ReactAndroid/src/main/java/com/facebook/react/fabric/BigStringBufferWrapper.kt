@@ -8,16 +8,29 @@
 package com.facebook.react.fabric
 
 import android.annotation.SuppressLint
+import android.content.res.AssetManager
 import com.facebook.jni.HybridData
 import com.facebook.proguard.annotations.DoNotStripAny
-import com.facebook.soloader.SoLoader
 
 /** TODO: Description */
 @SuppressLint("MissingNativeLoadLibrary")
 @DoNotStripAny
-public class BigStringBufferWrapper internal constructor(fileName: String) {
+public class BigStringBufferWrapper {
 
-private val mHybridData: HybridData = initHybrid(fileName);
+  private val mHybridData: HybridData
 
-  private external fun initHybrid(fileName: String): HybridData;
+  public constructor(fileName: String) {
+    mHybridData = initHybridFromFile(fileName)
+  }
+
+  public constructor(assetManager: AssetManager, assetURL: String) {
+    mHybridData = initHybridFromAssets(assetManager, assetURL)
+  }
+
+  private external fun initHybridFromFile(fileName: String): HybridData
+
+  private external fun initHybridFromAssets(
+          assetManager: AssetManager,
+          assetURL: String
+  ): HybridData
 }

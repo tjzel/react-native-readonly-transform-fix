@@ -311,6 +311,11 @@ internal class ReactInstance(
 
           override fun loadSplitBundleFromFile(fileName: String, sourceURL: String) {
             val script = BigStringBufferWrapper(fileName)
+
+            val workletsModule = turboModuleManager.getModule("WorkletsModule") as? BundleConsumer
+            workletsModule?.setScriptWrapper(script)
+            workletsModule?.setSourceURL(sourceURL)
+
             loadJSBundle(script, sourceURL)
           }
 
@@ -320,7 +325,14 @@ internal class ReactInstance(
               loadSynchronously: Boolean
           ) {
             context.setSourceURL(assetURL)
-            loadJSBundleFromAssets(assetManager, assetURL)
+
+            val script = BigStringBufferWrapper(assetManager, assetURL)
+
+            val workletsModule = turboModuleManager.getModule("WorkletsModule") as? BundleConsumer
+            workletsModule?.setScriptWrapper(script)
+            workletsModule?.setSourceURL(assetURL.removePrefix("assets://"))
+
+            loadJSBundle(script, assetURL)
           }
 
           override fun setSourceURLs(deviceURL: String, remoteURL: String) {

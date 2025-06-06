@@ -6,14 +6,14 @@
  */
 
 #include "BigStringBufferWrapper.h"
-#include <cxxreact/RecoverableError.h>
 #include <cxxreact/JSBigString.h>
+#include <cxxreact/RecoverableError.h>
 
 using namespace facebook::jni;
 
 namespace facebook::react {
 jni::local_ref<BigStringBufferWrapper::jhybriddata>
-BigStringBufferWrapper::initHybrid(
+BigStringBufferWrapper::initHybridFromFile(
     jni::alias_ref<jhybridobject> jThis,
     std::string fileName) {
   std::unique_ptr<const JSBigFileString> script;
@@ -23,17 +23,35 @@ BigStringBufferWrapper::initHybrid(
   return makeCxxInstance(buffer);
 }
 
+jni::local_ref<BigStringBufferWrapper::jhybriddata>
+BigStringBufferWrapper::initHybridFromAssets(
+    jni::alias_ref<jhybridobject> jThis,
+    jni::alias_ref<JAssetManager::javaobject> assetManager,
+    const std::string& assetURL) {
+  const int kAssetsLength = 9; // strlen("assets://");
+  auto sourceURL = assetURL.substr(kAssetsLength);
+
+  auto manager = extractAssetManager(assetManager);
+  auto script = loadScriptFromAssets(manager, sourceURL);
+  auto buffer = std::make_shared<BigStringBuffer>(std::move(script));
+  return makeCxxInstance(buffer);
+}
+
 BigStringBufferWrapper::BigStringBufferWrapper(
     const std::shared_ptr<const BigStringBuffer>& script)
     : script_(script) {}
 
-const std::shared_ptr<const BigStringBuffer>
-BigStringBufferWrapper::getScript() const {
+const std::shared_ptr<const BigStringBuffer> BigStringBufferWrapper::getScript()
+    const {
   return script_;
 }
 
 void BigStringBufferWrapper::registerNatives() {
   registerHybrid(
-      {makeNativeMethod("initHybrid", BigStringBufferWrapper::initHybrid)});
+      {makeNativeMethod(
+           "initHybridFromFile", BigStringBufferWrapper::initHybridFromFile),
+       makeNativeMethod(
+           "initHybridFromAssets",
+           BigStringBufferWrapper::initHybridFromAssets)});
 }
 } // namespace facebook::react

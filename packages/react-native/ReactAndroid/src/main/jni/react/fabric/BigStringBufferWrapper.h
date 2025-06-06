@@ -12,6 +12,7 @@
 
 #include <fbjni/fbjni.h>
 #include <jsireact/JSIExecutor.h>
+#include <react/jni/JSLoader.h>
 
 namespace facebook::react {
 
@@ -25,9 +26,15 @@ class BigStringBufferWrapper : public jni::HybridClass<BigStringBufferWrapper> {
   [[nodiscard]] const std::shared_ptr<const BigStringBuffer> getScript() const;
 
  private:
-  static jni::local_ref<BigStringBufferWrapper::jhybriddata> initHybrid(
+  static jni::local_ref<BigStringBufferWrapper::jhybriddata> initHybridFromFile(
       jni::alias_ref<jhybridobject> jThis,
       std::string fileName);
+
+  static jni::local_ref<BigStringBufferWrapper::jhybriddata>
+  initHybridFromAssets(
+      jni::alias_ref<jhybridobject> jThis,
+      jni::alias_ref<JAssetManager::javaobject> assetManager,
+      const std::string& assetURL);
 
   friend HybridBase;
 
