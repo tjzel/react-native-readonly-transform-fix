@@ -326,11 +326,12 @@ internal class ReactInstance(
           ) {
             context.setSourceURL(assetURL)
 
-            val script = BigStringBufferWrapper(assetManager, assetURL)
+            val sourceURL = assetURL.removePrefix("assets://")
+            val script = BigStringBufferWrapper(assetManager, sourceURL)
 
             val workletsModule = turboModuleManager.getModule("WorkletsModule") as? BundleConsumer
             workletsModule?.setScriptWrapper(script)
-            workletsModule?.setSourceURL(assetURL.removePrefix("assets://"))
+            workletsModule?.setSourceURL(assetURL)
 
             loadJSBundle(script, assetURL)
           }

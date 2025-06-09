@@ -27,10 +27,7 @@ jni::local_ref<BigStringBufferWrapper::jhybriddata>
 BigStringBufferWrapper::initHybridFromAssets(
     jni::alias_ref<jhybridobject> jThis,
     jni::alias_ref<JAssetManager::javaobject> assetManager,
-    const std::string& assetURL) {
-  const int kAssetsLength = 9; // strlen("assets://");
-  auto sourceURL = assetURL.substr(kAssetsLength);
-
+    const std::string& sourceURL) {
   auto manager = extractAssetManager(assetManager);
   auto script = loadScriptFromAssets(manager, sourceURL);
   auto buffer = std::make_shared<BigStringBuffer>(std::move(script));
