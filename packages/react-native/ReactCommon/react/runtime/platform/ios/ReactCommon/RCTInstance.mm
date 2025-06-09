@@ -44,6 +44,7 @@
 #import <react/renderer/runtimescheduler/RuntimeSchedulerCallInvoker.h>
 #import <react/utils/ContextContainer.h>
 #import <react/utils/ManagedObjectWrapper.h>
+#import <ReactCodegen/RCTModulesConformingToProtocolsProvider.h>
 
 #import "ObjCTimerRegistry.h"
 #import "RCTJSThreadManager.h"
@@ -553,7 +554,14 @@ void RCTInstanceSetRuntimeDiagnosticFlags(NSString *flags)
   const auto scriptBuffer = std::make_shared<const BigStringBuffer>(std::move(script));
   const auto *url = deriveSourceURL(source.url).UTF8String;
 
-  auto beforeLoad = [waitUntilModuleSetupComplete = self->_waitUntilModuleSetupComplete](jsi::Runtime &_) {
+  auto beforeLoad = [waitUntilModuleSetupComplete = self->_waitUntilModuleSetupComplete, turboModuleManager = self->_turboModuleManager, scriptBuffer, url](jsi::Runtime &_) {
+    auto bundleConsumerNames = [RCTModulesConformingToProtocolsProvider bundleConsumerClassNames];
+    for (id name in bundleConsumerNames) {
+      id<RCTBundleConsumer> module = (id<RCTBundleConsumer>)[turboModuleManager moduleForName:[name UTF8String]];
+      module.scriptBuffer = [[NSBigStringBuffer alloc] initWithSharedPtr:scriptBuffer];
+      module.sourceURL = @(url);
+    }
+    
     if (waitUntilModuleSetupComplete) {
       waitUntilModuleSetupComplete();
     }
@@ -561,10 +569,6 @@ void RCTInstanceSetRuntimeDiagnosticFlags(NSString *flags)
   auto afterLoad = [](jsi::Runtime &_) {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"RCTInstanceDidLoadBundle" object:nil];
   };
-
-  id<RCTBundleConsumer> worklets = (id<RCTBundleConsumer>)[_turboModuleManager moduleForName:"WorkletsModule"];
-  worklets.scriptBuffer = [[NSBigStringBuffer alloc] initWithSharedPtr:scriptBuffer];
-  worklets.sourceURL = @(url);
 
   _reactInstance->loadScript(scriptBuffer, url, beforeLoad, afterLoad);
 }
