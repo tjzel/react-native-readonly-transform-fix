@@ -289,6 +289,14 @@ internal class ReactInstance(
     }
   }
 
+  fun beforeLoad(scriptWrapper: BigStringBufferWrapper, sourceURL: String){
+    val bundleConsumers = turboModuleManager.getModulesConformingToInterface(BundleConsumer::class.java)
+    for(bundleConsumer in bundleConsumers) {
+      bundleConsumer.setScriptWrapper(scriptWrapper);
+      bundleConsumer.setSourceURL(sourceURL);
+    }
+  }
+
   fun loadJSBundle(bundleLoader: JSBundleLoader) {
     Systrace.beginSection(Systrace.TRACE_TAG_REACT, "ReactInstance.loadJSBundle")
     bundleLoader.loadScript(
@@ -300,22 +308,16 @@ internal class ReactInstance(
           ) {
             context.setSourceURL(sourceURL)
 
-            val script = BigStringBufferWrapper(fileName)
+            val script = BigStringBufferWrapper(fileName);
 
-            val workletsModule = turboModuleManager.getModule("WorkletsModule") as? BundleConsumer
-            workletsModule?.setScriptWrapper(script)
-            workletsModule?.setSourceURL(sourceURL)
-
+            beforeLoad(script, sourceURL);
             loadJSBundle(script, sourceURL)
           }
 
           override fun loadSplitBundleFromFile(fileName: String, sourceURL: String) {
             val script = BigStringBufferWrapper(fileName)
 
-            val workletsModule = turboModuleManager.getModule("WorkletsModule") as? BundleConsumer
-            workletsModule?.setScriptWrapper(script)
-            workletsModule?.setSourceURL(sourceURL)
-
+            beforeLoad(script, sourceURL);
             loadJSBundle(script, sourceURL)
           }
 
@@ -329,10 +331,7 @@ internal class ReactInstance(
             val sourceURL = assetURL.removePrefix("assets://")
             val script = BigStringBufferWrapper(assetManager, sourceURL)
 
-            val workletsModule = turboModuleManager.getModule("WorkletsModule") as? BundleConsumer
-            workletsModule?.setScriptWrapper(script)
-            workletsModule?.setSourceURL(assetURL)
-
+            beforeLoad(script, assetURL);
             loadJSBundle(script, assetURL)
           }
 
