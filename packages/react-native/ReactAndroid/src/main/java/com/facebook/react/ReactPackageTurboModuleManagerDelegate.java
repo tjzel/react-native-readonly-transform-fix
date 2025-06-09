@@ -170,18 +170,21 @@ public abstract class ReactPackageTurboModuleManagerDelegate extends TurboModule
 
   @NonNull
   @Override
-  public <TInterface> List<TInterface> getModulesConformingToInterface(@NonNull Class<TInterface> clazz) {
-    List<TInterface> modules = new ArrayList<>();
+  public <TInterface> List<String> getModulesConformingToInterfaceNames(@NonNull Class<TInterface> clazz) {
+    List<String> moduleNames = new ArrayList<>();
 
     for (final ModuleProvider moduleProvider : mModuleProviders) {
       for (final ReactModuleInfo moduleInfo : mPackageModuleInfos.get(moduleProvider).values()) {
+        if(!moduleInfo.name().equals("WorkletsModule")) {
+          continue;
+        }
         NativeModule module = moduleProvider.getModule(moduleInfo.name());
         if (clazz.isInstance(module)) {
-          modules.add(clazz.cast(module));
+          moduleNames.add(moduleInfo.name());
         }
       }
     }
-    return modules;
+    return moduleNames;
   }
 
   @Override
