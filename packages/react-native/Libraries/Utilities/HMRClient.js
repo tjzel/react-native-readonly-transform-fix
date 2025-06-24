@@ -166,6 +166,8 @@ const HMRClient: HMRClientNativeInterface = {
 
     hmrClient = client;
 
+    globalThis.HMRClient = hmrClient;
+
     const {fullBundleUrl} = getDevServer();
     pendingEntryPoints.push(
       // HMRServer understands regular bundle URLs, so prefer that in case
