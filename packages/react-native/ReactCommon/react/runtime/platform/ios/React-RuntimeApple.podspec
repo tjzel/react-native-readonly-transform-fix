@@ -16,7 +16,7 @@ else
   source[:tag] = "v#{version}"
 end
 
-experimental_bundling_flag = ENV["WORKLETS_EXPERIMENTAL_BUNDLING"] == "1" ? 'WORKLETS_EXPERIMENTAL_BUNDLING=1' : ''
+bundle_mode_flag = ENV["WORKLETS_BUNDLE_MODE"] == "1" ? 'WORKLETS_BUNDLE_MODE=1' : ''
 
 header_search_paths = [
   "$(PODS_ROOT)/Headers/Private/React-Core",
@@ -39,8 +39,8 @@ Pod::Spec.new do |s|
                                 "USE_HEADERMAP" => "YES",
                                 "CLANG_CXX_LANGUAGE_STANDARD" => rct_cxx_language_standard(),
                                 "GCC_WARN_PEDANTIC" => "YES",
-                                "GCC_PREPROCESSOR_DEFINITIONS[config=*Debug*]" => "$(inherited) #{experimental_bundling_flag}",
-                                "GCC_PREPROCESSOR_DEFINITIONS[config=*Release*]" => "$(inherited) #{experimental_bundling_flag}",
+                                "GCC_PREPROCESSOR_DEFINITIONS[config=*Debug*]" => "$(inherited) #{bundle_mode_flag}",
+                                "GCC_PREPROCESSOR_DEFINITIONS[config=*Release*]" => "$(inherited) #{bundle_mode_flag}",
                                }
 
   if ENV['USE_FRAMEWORKS']

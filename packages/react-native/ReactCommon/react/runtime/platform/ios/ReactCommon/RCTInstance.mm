@@ -555,14 +555,14 @@ void RCTInstanceSetRuntimeDiagnosticFlags(NSString *flags)
   const auto *url = deriveSourceURL(source.url).UTF8String;
 
   auto beforeLoad = [waitUntilModuleSetupComplete = self->_waitUntilModuleSetupComplete, turboModuleManager = self->_turboModuleManager, scriptBuffer, url](jsi::Runtime &_) {
-    #ifdef WORKLETS_EXPERIMENTAL_BUNDLING
+    #ifdef WORKLETS_BUNDLE_MODE
     auto bundleConsumerNames = [RCTModulesConformingToProtocolsProvider bundleConsumerClassNames];
     for (id name in bundleConsumerNames) {
       id<RCTBundleConsumer> module = (id<RCTBundleConsumer>)[turboModuleManager moduleForName:[name UTF8String]];
       module.scriptBuffer = [[NSBigStringBuffer alloc] initWithSharedPtr:scriptBuffer];
       module.sourceURL = @(url);
     }
-    #endif // WORKLETS_EXPERIMENTAL_BUNDLING
+    #endif // WORKLETS_BUNDLE_MODE
     
     if (waitUntilModuleSetupComplete) {
       waitUntilModuleSetupComplete();
