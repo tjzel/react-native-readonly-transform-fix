@@ -23,6 +23,7 @@ folly_dep_name = folly_config[:dep_name]
 
 boost_config = get_boost_config()
 boost_compiler_flags = boost_config[:compiler_flags]
+bundle_mode_flag = ENV["WORKLETS_BUNDLE_MODE"] == "1" ? 'WORKLETS_BUNDLE_MODE=1' : ''
 
 header_search_paths = [
   "$(PODS_ROOT)/boost",
@@ -45,8 +46,12 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig    = { "HEADER_SEARCH_PATHS" => header_search_paths,
                                 "USE_HEADERMAP" => "YES",
                                 "CLANG_CXX_LANGUAGE_STANDARD" => rct_cxx_language_standard(),
-                                "GCC_WARN_PEDANTIC" => "YES" }
+                                "GCC_WARN_PEDANTIC" => "YES",
+                                "GCC_PREPROCESSOR_DEFINITIONS[config=*Debug*]" => "$(inherited) #{bundle_mode_flag}",
+                                "GCC_PREPROCESSOR_DEFINITIONS[config=*Release*]" => "$(inherited) #{bundle_mode_flag}",
+                               }
   s.compiler_flags       = folly_compiler_flags + ' ' + boost_compiler_flags
+
 
   if ENV['USE_FRAMEWORKS']
     s.header_mappings_dir     = './'

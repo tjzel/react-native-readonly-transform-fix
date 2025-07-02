@@ -649,11 +649,21 @@ function generateCustomURLHandlers(libraries, outputDir) {
     .map(className => `@"${className}"`)
     .join(',\n\t\t\t');
 
+  const bundleConsumerClasses = libraries
+    .flatMap(
+      library =>
+        library?.config?.ios?.modulesConformingToProtocol?.RCTBundleConsumer,
+    )
+    .filter(Boolean)
+    .map(className => `@"${className}"`)
+    .join(',\n\t\t\t');
+
   const template = fs.readFileSync(MODULES_PROTOCOLS_MM_TEMPLATE_PATH, 'utf8');
   const finalMMFile = template
     .replace(/{imageURLLoaderClassNames}/, customImageURLLoaderClasses)
     .replace(/{imageDataDecoderClassNames}/, customImageDataDecoderClasses)
-    .replace(/{requestHandlersClassNames}/, customURLHandlerClasses);
+    .replace(/{requestHandlersClassNames}/, customURLHandlerClasses)
+    .replace(/{bundleConsumerClassNames}/, bundleConsumerClasses);
 
   fs.mkdirSync(outputDir, {recursive: true});
 

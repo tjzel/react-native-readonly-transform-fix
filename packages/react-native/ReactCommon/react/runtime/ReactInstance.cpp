@@ -213,20 +213,24 @@ std::string simpleBasename(const std::string& path) {
  * preferably via the runtimeExecutor_.
  */
 void ReactInstance::loadScript(
-    std::unique_ptr<const JSBigString> script,
+    const std::shared_ptr<const BigStringBuffer>& script,
     const std::string& sourceURL,
-    std::function<void(jsi::Runtime& runtime)>&& completion) {
-  auto buffer = std::make_shared<BigStringBuffer>(std::move(script));
+    std::function<void(jsi::Runtime& runtime)>&& beforeLoad,
+    std::function<void(jsi::Runtime& runtime)>&& afterLoad) {
   std::string scriptName = simpleBasename(sourceURL);
 
   runtimeScheduler_->scheduleWork([this,
                                    scriptName,
                                    sourceURL,
-                                   buffer = std::move(buffer),
+                                   script,
                                    weakBufferedRuntimeExecuter =
                                        std::weak_ptr<BufferedRuntimeExecutor>(
                                            bufferedRuntimeExecutor_),
-                                   completion](jsi::Runtime& runtime) {
+                                   beforeLoad,
+                                   afterLoad](jsi::Runtime& runtime) {
+    if (beforeLoad) {
+      beforeLoad(runtime);
+    }
     TraceSection s("ReactInstance::loadScript");
     bool hasLogger(ReactMarker::logTaggedMarkerBridgelessImpl);
     if (hasLogger) {
@@ -234,7 +238,7 @@ void ReactInstance::loadScript(
           ReactMarker::RUN_JS_BUNDLE_START, scriptName.c_str());
     }
 
-    runtime.evaluateJavaScript(buffer, sourceURL);
+    runtime.evaluateJavaScript(script, sourceURL);
 
     /**
      * TODO(T183610671): We need a safe/reliable way to enable the js
@@ -255,8 +259,8 @@ void ReactInstance::loadScript(
             weakBufferedRuntimeExecuter.lock()) {
       strongBufferedRuntimeExecuter->flush();
     }
-    if (completion) {
-      completion(runtime);
+    if (afterLoad) {
+      afterLoad(runtime);
     }
   });
 }

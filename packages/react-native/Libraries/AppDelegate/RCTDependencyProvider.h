@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<NSString *> *)URLRequestHandlerClassNames;
 
+- (NSArray<NSString *> *)bundleConsumerClassNames;
+
 - (NSDictionary<NSString *, Class<RCTComponentViewProtocol>> *)thirdPartyFabricComponents;
 
 - (nonnull NSDictionary<NSString *, id<RCTModuleProvider>> *)moduleProviders;

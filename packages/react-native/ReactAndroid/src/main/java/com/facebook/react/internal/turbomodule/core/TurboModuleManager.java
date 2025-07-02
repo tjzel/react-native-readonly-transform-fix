@@ -251,6 +251,10 @@ public class TurboModuleManager implements TurboModuleRegistry {
     return module;
   }
 
+  public <TInterface> List<String> getModulesConformingToInterfaceNames(Class<TInterface> clazz) {
+    return mDelegate != null ? mDelegate.getModulesConformingToInterfaceNames(clazz) : Collections.emptyList();
+  }
+
   /**
    * Given a ModuleHolder, and the TurboModule's moduleName, return the TurboModule instance.
    *

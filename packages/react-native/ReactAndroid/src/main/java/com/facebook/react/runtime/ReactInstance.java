@@ -22,6 +22,7 @@ import com.facebook.react.DebugCorePackage;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.ViewManagerOnDemandReactPackage;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.BundleConsumer;
 import com.facebook.react.bridge.JSBundleLoader;
 import com.facebook.react.bridge.JSBundleLoaderDelegate;
 import com.facebook.react.bridge.JavaOnlyMap;
@@ -41,6 +42,7 @@ import com.facebook.react.bridge.queue.ReactQueueConfigurationImpl;
 import com.facebook.react.bridge.queue.ReactQueueConfigurationSpec;
 import com.facebook.react.devsupport.StackTraceHelper;
 import com.facebook.react.devsupport.interfaces.DevSupportManager;
+import com.facebook.react.fabric.BigStringBufferWrapper;
 import com.facebook.react.fabric.ComponentFactory;
 import com.facebook.react.fabric.FabricUIManager;
 import com.facebook.react.fabric.FabricUIManagerBinding;
@@ -339,6 +341,15 @@ final class ReactInstance {
     }
   }
 
+  void beforeLoad(BigStringBufferWrapper scriptWrapper, String sourceURL) {
+    Collection<String> bundleConsumers = mTurboModuleManager.getModulesConformingToInterfaceNames(BundleConsumer.class);
+    for (String name : bundleConsumers) {
+      BundleConsumer module = (BundleConsumer) mTurboModuleManager.getModule(name);
+      module.setScriptWrapper(scriptWrapper);
+      module.setSourceURL(sourceURL);
+    }
+  }
+
   public void loadJSBundle(JSBundleLoader bundleLoader) {
     Systrace.beginSection(Systrace.TRACE_TAG_REACT_JAVA_BRIDGE, "ReactInstance.loadJSBundle");
     bundleLoader.loadScript(
@@ -347,19 +358,30 @@ final class ReactInstance {
           public void loadScriptFromFile(
               String fileName, String sourceURL, boolean loadSynchronously) {
             mBridgelessReactContext.setSourceURL(sourceURL);
-            loadJSBundleFromFile(fileName, sourceURL);
+
+            var script = new BigStringBufferWrapper(fileName);
+
+            beforeLoad(script, sourceURL);
+            loadJSBundle(script, sourceURL);
           }
 
           @Override
           public void loadSplitBundleFromFile(String fileName, String sourceURL) {
-            loadJSBundleFromFile(fileName, sourceURL);
+            var script = new BigStringBufferWrapper(fileName);
+
+            beforeLoad(script, sourceURL);
+            loadJSBundle(script, sourceURL);
           }
 
           @Override
           public void loadScriptFromAssets(
               AssetManager assetManager, String assetURL, boolean loadSynchronously) {
             mBridgelessReactContext.setSourceURL(assetURL);
-            loadJSBundleFromAssets(assetManager, assetURL);
+            String sourceURL = assetURL.startsWith("assets://") ? assetURL.substring("assets://".length()) : assetURL;
+            var script = new BigStringBufferWrapper(assetManager, sourceURL);
+
+            beforeLoad(script, assetURL);
+            loadJSBundle(script, assetURL);
           }
 
           @Override
@@ -482,7 +504,7 @@ final class ReactInstance {
   @DoNotStrip
   private native void installGlobals(boolean isProfiling);
 
-  private native void loadJSBundleFromFile(String fileName, String sourceURL);
+  private native void loadJSBundle(BigStringBufferWrapper fileName, String sourceURL);
 
   private native void loadJSBundleFromAssets(AssetManager assetManager, String assetURL);
 

@@ -45,6 +45,8 @@ public abstract class TurboModuleManagerDelegate {
   @Nullable
   public abstract TurboModule getModule(String moduleName);
 
+  public abstract <TInterface> List<String> getModulesConformingToInterfaceNames(Class<TInterface> clazz);
+
   public abstract boolean unstable_isModuleRegistered(String moduleName);
 
   /**

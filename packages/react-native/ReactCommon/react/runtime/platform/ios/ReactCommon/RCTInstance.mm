@@ -11,6 +11,7 @@
 
 #import <FBReactNativeSpec/FBReactNativeSpec.h>
 #import <React/NSDataBigString.h>
+#import <React/NSBigStringBuffer.h>
 #import <React/RCTAssert.h>
 #import <React/RCTBridge+Inspector.h>
 #import <React/RCTBridge+Private.h>
@@ -19,6 +20,7 @@
 #import <React/RCTBridgeModuleDecorator.h>
 #import <React/RCTBridgeProxy+Cxx.h>
 #import <React/RCTBridgeProxy.h>
+#import <React/RCTBundleConsumer.h>
 #import <React/RCTComponentViewFactory.h>
 #import <React/RCTConstants.h>
 #import <React/RCTCxxUtils.h>
@@ -42,6 +44,7 @@
 #import <react/renderer/runtimescheduler/RuntimeSchedulerCallInvoker.h>
 #import <react/utils/ContextContainer.h>
 #import <react/utils/ManagedObjectWrapper.h>
+#import <ReactCodegen/RCTModulesConformingToProtocolsProvider.h>
 
 #import "ObjCTimerRegistry.h"
 #import "RCTJSThreadManager.h"
@@ -494,10 +497,24 @@ void RCTInstanceSetRuntimeDiagnosticFlags(NSString *flags)
   }
 
   auto script = std::make_unique<NSDataBigString>(source.data);
+  const auto scriptBuffer = std::make_shared<const BigStringBuffer>(std::move(script));
   const auto *url = deriveSourceURL(source.url).UTF8String;
-  _reactInstance->loadScript(std::move(script), url, [](jsi::Runtime &_) {
+
+  auto beforeLoad = [turboModuleManager = self->_turboModuleManager, scriptBuffer, url](jsi::Runtime &_) {
+    #ifdef WORKLETS_BUNDLE_MODE
+    auto bundleConsumerNames = [RCTModulesConformingToProtocolsProvider bundleConsumerClassNames];
+    for (id name in bundleConsumerNames) {
+      id<RCTBundleConsumer> module = (id<RCTBundleConsumer>)[turboModuleManager moduleForName:[name UTF8String]];
+      module.scriptBuffer = [[NSBigStringBuffer alloc] initWithSharedPtr:scriptBuffer];
+      module.sourceURL = @(url);
+    }
+    #endif // WORKLETS_BUNDLE_MODE
+  };
+  auto afterLoad = [](jsi::Runtime &_) {
     [[NSNotificationCenter defaultCenter] postNotificationName:@"RCTInstanceDidLoadBundle" object:nil];
-  });
+  };
+
+  _reactInstance->loadScript(scriptBuffer, url, beforeLoad, afterLoad);
 }
 
 - (void)_handleJSError:(const JsErrorHandler::ProcessedError &)error withRuntime:(jsi::Runtime &)runtime
