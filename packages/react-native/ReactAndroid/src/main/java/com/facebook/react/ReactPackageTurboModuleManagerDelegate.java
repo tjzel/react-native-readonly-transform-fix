@@ -7,6 +7,7 @@
 
 package com.facebook.react;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.facebook.infer.annotation.Assertions;
 import com.facebook.jni.HybridData;
@@ -165,6 +166,25 @@ public abstract class ReactPackageTurboModuleManagerDelegate extends TurboModule
     }
 
     return (TurboModule) resolvedModule;
+  }
+
+  @NonNull
+  @Override
+  public <TInterface> List<String> getModulesConformingToInterfaceNames(@NonNull Class<TInterface> clazz) {
+    List<String> moduleNames = new ArrayList<>();
+
+    for (final ModuleProvider moduleProvider : mModuleProviders) {
+      for (final ReactModuleInfo moduleInfo : mPackageModuleInfos.get(moduleProvider).values()) {
+        if(!moduleInfo.name().equals("WorkletsModule")) {
+          continue;
+        }
+        NativeModule module = moduleProvider.getModule(moduleInfo.name());
+        if (clazz.isInstance(module)) {
+          moduleNames.add(moduleInfo.name());
+        }
+      }
+    }
+    return moduleNames;
   }
 
   @Override
