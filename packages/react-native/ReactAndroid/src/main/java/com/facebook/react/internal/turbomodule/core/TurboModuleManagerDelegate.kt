@@ -40,7 +40,7 @@ public abstract class TurboModuleManagerDelegate {
           clazz: Class<TInterface>
   ): List<String>
 
-  public abstract fun unstable_isModuleRegistered(moduleName: String): Boolean
+  public abstract fun unstable_isModuleRegistered(moduleName: String?): Boolean
 
   /**
    * Create an return a legacy NativeModule with name `moduleName`. If `moduleName` is a
