@@ -141,7 +141,8 @@ class CoreModulesPackage extends BaseReactPackage implements ReactPackageLogger 
               reactModule.canOverrideExistingModule(),
               reactModule.needsEagerInit(),
               reactModule.isCxxModule(),
-              ReactModuleInfo.classIsTurboModule(moduleClass)));
+              ReactModuleInfo.classIsTurboModule(moduleClass),
+              moduleClass));
     }
 
     return () -> reactModuleInfoMap;

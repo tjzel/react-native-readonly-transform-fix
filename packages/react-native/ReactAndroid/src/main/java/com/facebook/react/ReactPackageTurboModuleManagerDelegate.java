@@ -115,14 +115,16 @@ public abstract class ReactPackageTurboModuleManagerDelegate extends TurboModule
                       reactModule.canOverrideExistingModule(),
                       true,
                       reactModule.isCxxModule(),
-                      ReactModuleInfo.classIsTurboModule(moduleClass))
+                      ReactModuleInfo.classIsTurboModule(moduleClass),
+                      moduleClass)
                   : new ReactModuleInfo(
                       moduleName,
                       moduleClass.getName(),
                       module.canOverrideExistingModule(),
                       true,
                       CxxModuleWrapper.class.isAssignableFrom(moduleClass),
-                      ReactModuleInfo.classIsTurboModule(moduleClass));
+                      ReactModuleInfo.classIsTurboModule(moduleClass),
+                      moduleClass);
 
           reactModuleInfoMap.put(moduleName, moduleInfo);
           moduleMap.put(moduleName, module);
@@ -170,16 +172,16 @@ public abstract class ReactPackageTurboModuleManagerDelegate extends TurboModule
 
   @NonNull
   @Override
-  public <TInterface> List<String> getModulesConformingToInterfaceNames(@NonNull Class<TInterface> clazz) {
+  public <TInterface> List<String> getModuleNamesConformingToInterface(@NonNull Class<TInterface> clazz) {
     List<String> moduleNames = new ArrayList<>();
 
-    for (final ModuleProvider moduleProvider : mModuleProviders) {
-      for (final ReactModuleInfo moduleInfo : mPackageModuleInfos.get(moduleProvider).values()) {
-        if(!moduleInfo.name().equals("WorkletsModule")) {
-          continue;
-        }
-        NativeModule module = moduleProvider.getModule(moduleInfo.name());
-        if (clazz.isInstance(module)) {
+    for (ModuleProvider moduleProvider : mModuleProviders) {
+      Map<String, ReactModuleInfo> moduleInfos = mPackageModuleInfos.get(moduleProvider);
+      if (moduleInfos == null) {
+        continue;
+      }
+      for (ReactModuleInfo moduleInfo : moduleInfos.values()) {
+        if (clazz.isAssignableFrom(moduleInfo.moduleClass())) {
           moduleNames.add(moduleInfo.name());
         }
       }

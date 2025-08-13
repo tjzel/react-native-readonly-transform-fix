@@ -209,10 +209,10 @@ public class TurboModuleManager(
     return module
   }
 
-  public fun <TInterface> getModulesConformingToInterfaceNames(
+  public fun <TInterface> getModuleNamesConformingToInterface(
           clazz: Class<TInterface>
   ): List<String> {
-    return delegate?.getModulesConformingToInterfaceNames(clazz) ?: emptyList()
+    return delegate?.getModuleNamesConformingToInterface(clazz) ?: emptyList()
   }
 
   /**

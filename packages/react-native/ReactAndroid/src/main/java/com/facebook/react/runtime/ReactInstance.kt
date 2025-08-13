@@ -291,7 +291,7 @@ internal class ReactInstance(
   }
 
   fun beforeLoad(scriptWrapper: BigStringBufferWrapper, sourceURL: String){
-    val bundleConsumers = turboModuleManager.getModulesConformingToInterfaceNames(BundleConsumer::class.java)
+    val bundleConsumers = turboModuleManager.getModuleNamesConformingToInterface(BundleConsumer::class.java)
     for(name in bundleConsumers) {
       val module = turboModuleManager.getModule(name) as BundleConsumer
       module.setScriptWrapper(scriptWrapper);
