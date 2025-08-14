@@ -19,7 +19,6 @@
 #import <React/RCTHTTPRequestHandler.h>
 #import <React/RCTImageLoader.h>
 #import <React/RCTNetworking.h>
-#import <React/RCTBundleConsumer.h>
 
 // Fabric
 #import <React/RCTFabricSurface.h>
@@ -74,9 +73,7 @@ id<RCTTurboModule> RCTAppSetupDefaultModuleFromClass(Class moduleClass, id<RCTDe
           classNames = dependencyProvider ? dependencyProvider.imageDataDecoderClassNames : @[];
         } else if (protocol == @protocol(RCTURLRequestHandler)) {
           classNames = dependencyProvider ? dependencyProvider.URLRequestHandlerClassNames : @[];
-        } else if (protocol == @protocol(RCTBundleConsumer)) {
-          classNames = dependencyProvider ? dependencyProvider.bundleConsumerClassNames : @[];
-        } 
+        }
 
         NSMutableArray *modules = [NSMutableArray new];
 

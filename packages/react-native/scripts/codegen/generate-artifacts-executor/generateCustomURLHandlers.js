@@ -29,7 +29,6 @@ function generateCustomURLHandlers(libraries, outputDir) {
   const imageURLLoaderModules = new Set();
   const imageDataDecoderModules = new Set();
   const urlRequestHandlersModules = new Set();
-  const bundleConsumerModules = new Set();
 
   const wrapInArrayIfNecessary = value =>
     Array.isArray(value) || value == null ? value : [value];
@@ -56,11 +55,6 @@ function generateCustomURLHandlers(libraries, outputDir) {
     )?.forEach(moduleName => {
       urlRequestHandlersModules.add(moduleName);
     });
-    wrapInArrayIfNecessary(
-      modulesConformingToProtocol.RCTBundleConsumer,
-    )?.forEach(moduleName => {
-      bundleConsumerModules.add(moduleName);
-    });
   }
 
   // New API
@@ -82,9 +76,6 @@ function generateCustomURLHandlers(libraries, outputDir) {
       if (conformsToProtocols.includes('RCTURLRequestHandler')) {
         urlRequestHandlersModules.add(moduleName);
       }
-      if (conformsToProtocols.includes('RCTBundleConsumer')) {
-        bundleConsumerModules.add(moduleName);
-      }
     }
   }
 
@@ -100,16 +91,11 @@ function generateCustomURLHandlers(libraries, outputDir) {
     .map(className => `@"${className}"`)
     .join(',\n\t\t');
 
-  const customBundleConsumerClasses = Array.from(bundleConsumerModules)
-    .map(className => `@"${className}"`)
-    .join(',\n\t\t');
-
   const template = fs.readFileSync(MODULES_PROTOCOLS_MM_TEMPLATE_PATH, 'utf8');
   const finalMMFile = template
     .replace(/{imageURLLoaderClassNames}/, customImageURLLoaderClasses)
     .replace(/{imageDataDecoderClassNames}/, customImageDataDecoderClasses)
-    .replace(/{requestHandlersClassNames}/, customURLHandlerClasses)
-    .replace(/{bundleConsumerClassNames}/, customBundleConsumerClasses);
+    .replace(/{requestHandlersClassNames}/, customURLHandlerClasses);
 
   fs.mkdirSync(outputDir, {recursive: true});
 

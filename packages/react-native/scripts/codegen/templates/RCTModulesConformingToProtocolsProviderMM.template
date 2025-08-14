@@ -51,18 +51,4 @@
   return classNames;
 }
 
-+(NSArray<NSString *> *)bundleConsumerClassNames
-{
-  static NSArray<NSString *> *classNames = nil;
-  static dispatch_once_t onceToken;
-  
-  dispatch_once(&onceToken, ^{
-    classNames = @[
-      {bundleConsumerClassNames}
-    ];
-  });
-  
-  return classNames;
-}
-
 @end
