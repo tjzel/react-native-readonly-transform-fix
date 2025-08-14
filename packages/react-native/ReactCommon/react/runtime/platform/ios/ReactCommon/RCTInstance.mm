@@ -559,19 +559,12 @@ void RCTInstanceSetRuntimeDiagnosticFlags(NSString *flags)
   const auto *url = deriveSourceURL(source.url).UTF8String;
 
   auto beforeLoad = [waitUntilModuleSetupComplete = self->_waitUntilModuleSetupComplete, turboModuleManager = self->_turboModuleManager, scriptBuffer, url](jsi::Runtime &_) {
-
-    NSArray<NSString *> *scriptConsumerNames = [turboModuleManager moduleNamesRespondingToSelector:@selector(setScriptBuffer:)];
-
-    for (NSString *name in scriptConsumerNames) {
-        id<RCTBundleConsumer> module = [turboModuleManager moduleForName:[name UTF8String]];
-      module.scriptBuffer = [[NSBigStringBuffer alloc] initWithSharedPtr:scriptBuffer];
-    }
     
-    NSArray<NSString *> *sourceURLConsumerNames = [turboModuleManager moduleNamesRespondingToSelector:@selector(setSourceURL:)];
-
-    for (NSString *name in sourceURLConsumerNames) {
-        id<RCTBundleConsumer> module = [turboModuleManager moduleForName:[name UTF8String]];
-      module.sourceURL = @(url);
+    id bundleConsumers = [turboModuleManager getModulesConformingToProtocol:@protocol(RCTBundleConsumer)];
+    
+    for (id<RCTBundleConsumer> consumer in bundleConsumers) {
+      consumer.scriptBuffer = [[NSBigStringBuffer alloc] initWithSharedPtr:scriptBuffer];
+      consumer.sourceURL = @(url);
     }
     
     if (waitUntilModuleSetupComplete) {

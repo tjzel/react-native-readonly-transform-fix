@@ -265,7 +265,7 @@ typedef struct {
                                                  name:RCTBridgeDidInvalidateModulesNotification
                                                object:nil];
                                                
-    [self _discoverModules_];
+    [self _discoverModules];
   }
   return self;
 }
@@ -1009,21 +1009,22 @@ typedef struct {
   return module;
 }
 
-- (id)moduleNamesRespondingToSelector:(SEL)selector
-{
-  std::unique_lock<std::mutex> guard(_moduleHoldersMutex);
-  NSMutableArray *moduleNames = [NSMutableArray new];
+- (id)getModulesConformingToProtocol:(Protocol *)protocol{
+  NSMutableArray *modules = [NSMutableArray new];
 
   for (auto &pair : _moduleHolders) {
     auto * moduleName = pair.first.c_str();
     Class moduleClass = [self _getModuleClassFromName:moduleName];
 
-    if ([moduleClass instancesRespondToSelector:selector]) {
-      [moduleNames addObject:[NSString stringWithUTF8String:moduleName]];
+    if ([moduleClass conformsToProtocol:protocol]) {
+      id module = [self moduleForName:moduleName];
+      if (module) {
+        [modules addObject:module];
+      }
     }
   }
 
-  return moduleNames;
+  return modules;
 }
 
 - (BOOL)moduleIsInitialized:(const char *)moduleName
