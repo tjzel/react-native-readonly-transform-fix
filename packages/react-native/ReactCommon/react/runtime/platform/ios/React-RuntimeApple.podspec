@@ -16,8 +16,6 @@ else
   source[:tag] = "v#{version}"
 end
 
-bundle_mode_flag = ENV["WORKLETS_BUNDLE_MODE"] == "1" ? 'WORKLETS_BUNDLE_MODE=1' : ''
-
 header_search_paths = [
   "$(PODS_ROOT)/Headers/Private/React-Core",
   "$(PODS_TARGET_SRCROOT)/../../../..",
@@ -38,10 +36,7 @@ Pod::Spec.new do |s|
   s.pod_target_xcconfig    = { "HEADER_SEARCH_PATHS" => header_search_paths,
                                 "USE_HEADERMAP" => "YES",
                                 "CLANG_CXX_LANGUAGE_STANDARD" => rct_cxx_language_standard(),
-                                "GCC_WARN_PEDANTIC" => "YES",
-                                "GCC_PREPROCESSOR_DEFINITIONS[config=*Debug*]" => "$(inherited) #{bundle_mode_flag}",
-                                "GCC_PREPROCESSOR_DEFINITIONS[config=*Release*]" => "$(inherited) #{bundle_mode_flag}",
-                               }
+                                "GCC_WARN_PEDANTIC" => "YES" }
 
   if ENV['USE_FRAMEWORKS']
     s.header_mappings_dir     = './'
