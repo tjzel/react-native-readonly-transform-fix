@@ -150,6 +150,7 @@ class JSI_EXPORT TurboModule : public jsi::HostObject {
  private:
   friend class TurboModuleBinding;
   std::unique_ptr<jsi::WeakObject> jsRepresentation_;
+  jsi::Runtime* representationRuntime_;
 };
 
 /**
