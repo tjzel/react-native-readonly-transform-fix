@@ -30,6 +30,9 @@ module.exports = {
     },
   },
   dependencies: {
+    'react-native-reanimated': {
+      root: require.resolve('react-native-reanimated'),
+    },
     'react-native-worklets': {
       root: require.resolve('react-native-worklets'),
     },
