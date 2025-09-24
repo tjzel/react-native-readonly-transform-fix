@@ -15,7 +15,7 @@
 const config = require('../react-native/react-native.config.js');
 
 module.exports = {
-  ...config,
+  // ...config,
   reactNativePath: '../react-native',
   project: {
     ios: {
@@ -27,6 +27,11 @@ module.exports = {
       manifestPath:
         'packages/rn-tester/android/app/src/main/AndroidManifest.xml',
       packageName: 'com.facebook.react.uiapp',
+    },
+  },
+  dependencies: {
+    'react-native-worklets': {
+      root: require.resolve('react-native-worklets'),
     },
   },
 };

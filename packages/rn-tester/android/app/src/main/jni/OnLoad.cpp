@@ -12,6 +12,7 @@
 #include <ReactCommon/SampleTurboModuleJSIBindings.h>
 #include <ReactCommon/SampleTurboModuleSpec.h>
 #include <fbjni/fbjni.h>
+#include <autolinking.h>
 #include <react/renderer/componentregistry/ComponentDescriptorProviderRegistry.h>
 
 #ifdef REACT_NATIVE_APP_CODEGEN_HEADER
@@ -55,6 +56,11 @@ std::shared_ptr<TurboModule> javaModuleProvider(
 
   // We first try to look up core modules
   if (auto module = FBReactNativeSpec_ModuleProvider(name, params)) {
+    return module;
+  }
+
+  // And we fallback to the module providers autolinked
+  if (auto module = autolinking_ModuleProvider(name, params)) {
     return module;
   }
 
