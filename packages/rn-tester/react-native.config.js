@@ -29,12 +29,4 @@ module.exports = {
       packageName: 'com.facebook.react.uiapp',
     },
   },
-  dependencies: {
-    'react-native-reanimated': {
-      root: require.resolve('react-native-reanimated'),
-    },
-    'react-native-worklets': {
-      root: require.resolve('react-native-worklets'),
-    },
-  },
 };
