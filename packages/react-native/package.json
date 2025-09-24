@@ -185,8 +185,6 @@
     "pretty-format": "^29.7.0",
     "promise": "^8.3.0",
     "react-devtools-core": "^6.1.5",
-    "react-native-reanimated": "^4.1.1",
-    "react-native-worklets": "^0.5.1",
     "react-refresh": "^0.14.0",
     "regenerator-runtime": "^0.13.2",
     "scheduler": "0.26.0",
