@@ -98,13 +98,7 @@ public object DefaultNewArchitectureEntryPoint {
         ReactNativeFeatureFlags.override(ReactNativeFeatureFlagsOverrides_RNOSS_Canary_Android())
       }
       ReleaseLevel.STABLE -> {
-        ReactNativeFeatureFlags.override(
-            ReactNativeFeatureFlagsOverrides_RNOSS_Stable_Android(
-                fabricEnabled,
-                bridgelessEnabled,
-                turboModulesEnabled,
-            )
-        )
+        ReactNativeFeatureFlags.override(ReactNativeFeatureFlagsOverrides_RNOSS_Stable_Android())
       }
     }
 
@@ -126,7 +120,11 @@ public object DefaultNewArchitectureEntryPoint {
     privateBridgelessEnabled = featureFlags.enableBridgelessArchitecture()
 
     val (isValid, errorMessage) =
-        isConfigurationValid(turboModulesEnabled, fabricEnabled, bridgelessEnabled)
+        isConfigurationValid(
+            privateTurboModulesEnabled,
+            privateFabricEnabled,
+            privateBridgelessEnabled,
+        )
     if (!isValid) {
       error(errorMessage)
     }

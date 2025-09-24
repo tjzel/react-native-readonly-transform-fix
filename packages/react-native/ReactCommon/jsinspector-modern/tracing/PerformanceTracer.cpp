@@ -90,6 +90,7 @@ std::optional<std::vector<TraceEvent>> PerformanceTracer::stopTracing() {
     tracingAtomic_ = false;
     performanceMeasureCount_ = 0;
 
+    alreadyEmittedEntryForComponentsTrackOrdering_ = false;
     events = collectEventsAndClearBuffers(currentTraceEndTime);
   }
 
@@ -550,11 +551,8 @@ void PerformanceTracer::enqueueTraceEventsFromPerformanceTracerEvent(
             });
           },
           [&](PerformanceTracerEventTimeStamp&& event) {
-            // `name` takes precedence over `message` in Chrome DevTools
-            // Frontend, no need
-            // to record both.
-            folly::dynamic data =
-                folly::dynamic::object("name", std::move(event.name));
+            folly::dynamic data = folly::dynamic::object("name", event.name)(
+                "message", std::move(event.name));
             if (event.start) {
               if (std::holds_alternative<HighResTimeStamp>(*event.start)) {
                 data["start"] = highResTimeStampToTracingClockTimeStamp(
@@ -571,6 +569,34 @@ void PerformanceTracer::enqueueTraceEventsFromPerformanceTracerEvent(
                 data["end"] = std::move(std::get<std::string>(*event.end));
               }
             }
+
+            // We add a custom synthetic entry here to manually put Components
+            // track right under the Scheduler track. Will be removed once CDT
+            // Frontend preserves track ordering and we upgrade the fork.
+            if (!alreadyEmittedEntryForComponentsTrackOrdering_ &&
+                event.trackName && !event.trackGroup) {
+              if (*event.trackName == "Components \u269B") {
+                alreadyEmittedEntryForComponentsTrackOrdering_ = true;
+                // React is using 0.003 for Scheduler sub-tracks.
+                auto timestamp = highResTimeStampToTracingClockTimeStamp(
+                    HighResTimeStamp::fromDOMHighResTimeStamp(0.004));
+                events.emplace_back(TraceEvent{
+                    .name = "TimeStamp",
+                    .cat = "devtools.timeline",
+                    .ph = 'I',
+                    .ts = event.createdAt,
+                    .pid = processId_,
+                    .tid = event.threadId,
+                    .args = folly::dynamic::object(
+                        "data",
+                        folly::dynamic::object(
+                            "name", "ReactNative-ComponentsTrack")(
+                            "start", timestamp)("end", timestamp)(
+                            "track", *event.trackName)),
+                });
+              }
+            }
+
             if (event.trackName) {
               data["track"] = std::move(*event.trackName);
             }
