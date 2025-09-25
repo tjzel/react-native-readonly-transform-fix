@@ -15,7 +15,7 @@
 const config = require('../react-native/react-native.config.js');
 
 module.exports = {
-  ...config,
+  // ...config,
   reactNativePath: '../react-native',
   project: {
     ios: {

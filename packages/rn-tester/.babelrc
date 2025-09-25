@@ -5,6 +5,7 @@
         }]
     ],
     "plugins": [
-        "babel-plugin-transform-flow-enums"
+        "babel-plugin-transform-flow-enums",
+        "react-native-worklets/plugin"
     ]
 }
